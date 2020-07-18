@@ -1,23 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model books {
+  book_lds_url     String?
+  book_long_title  String?
+  book_short_title String?
+  book_subtitle    String?
+  book_title       String?
+  id               Int        @default(autoincrement()) @id
+  volume_id        Int?
+  volumes          volumes?   @relation(fields: [volume_id], references: [id])
+  chapters         chapters[]
 }
-// models examples
+
+model chapters {
+  book_id        Int?
+  chapter_number Int?
+  id             Int      @default(autoincrement()) @id
+  books          books?   @relation(fields: [book_id], references: [id])
+  verses         verses[]
+}
+
+model verses {
+  chapter_id     Int?
+  id             Int       @default(autoincrement()) @id
+  scripture_text String?
+  verse_number   Int?
+  chapters       chapters? @relation(fields: [chapter_id], references: [id])
+}
+
+model volumes {
+  id                 Int     @default(autoincrement()) @id
+  volume_lds_url     String?
+  volume_long_title  String?
+  volume_short_title String?
+  volume_subtitle    String?
+  volume_title       String?
+  books              books[]
+}
+
 model User {
   id        Int       @default(autoincrement()) @id
   createdAt DateTime  @default(now())
   email     String    @unique
   name      String?
   password  String
-  /// @onDelete(CASCADE)
+  // @onDelete(CASCADE)
   posts     Post[]
   group     Group?    @relation(fields: [groupId], references: [id])
   groupId   Int?
-  /// @onDelete(SET_NULL)
+  // @onDelete(SET_NULL)
   comments  Comment[]
 }
 
@@ -27,7 +65,7 @@ model Post {
   title     String
   author    User?     @relation(fields: [authorId], references: [id])
   authorId  Int?
-  /// @onDelete(CASCADE)
+  // @onDelete(CASCADE)
   comments  Comment[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -49,6 +87,6 @@ model Group {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  /// @onDelete(SET_NULL)
+  // @onDelete(SET_NULL)
   users     User[]
 }
